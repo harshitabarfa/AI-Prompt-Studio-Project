@@ -3,20 +3,17 @@ const savedList = document.getElementById("savedList");
 const output = document.getElementById("output");
 const robot = document.getElementById("robot");
 
-// Dark mode toggle
 themeBtn.onclick = () => {
     document.body.classList.toggle("dark");
 
     if (document.body.classList.contains("dark")) {
         themeBtn.innerHTML = '<i class="fa-solid fa-sun"></i>';
 
-        // Cards background and text
         document.querySelectorAll('.card').forEach(card => {
             card.style.backgroundColor = '#1e293b';
             card.style.color = '#f8fafc';
         });
 
-        // Inputs and textareas
         document.querySelectorAll('textarea, select').forEach(el => {
             el.style.backgroundColor = '#334155';
             el.style.color = '#f8fafc';
@@ -39,7 +36,6 @@ themeBtn.onclick = () => {
     }
 }
 
-// Generate Prompt
 function generatePrompt() {
     const type = document.getElementById("type").value;
     const role = document.getElementById("role").value;
@@ -66,12 +62,10 @@ function generatePrompt() {
 
     output.value = prompt;
 
-    // Robot animation on generate
     robot.classList.add("active");
     setTimeout(() => robot.classList.remove("active"), 600);
 }
 
-// Copy Prompt
 function copyPrompt() {
     if (!output.value) { alert("No prompt to copy"); return; }
     output.select();
@@ -79,7 +73,6 @@ function copyPrompt() {
     alert("Prompt copied!");
 }
 
-// Save Prompt
 function savePrompt() {
     if (!output.value) return;
     let prompts = JSON.parse(localStorage.getItem("prompts")) || [];
@@ -88,7 +81,6 @@ function savePrompt() {
     loadSaved();
 }
 
-// Load Saved Prompts
 function loadSaved() {
     savedList.innerHTML = "";
     let prompts = JSON.parse(localStorage.getItem("prompts")) || [];
@@ -107,13 +99,11 @@ function loadSaved() {
     });
 }
 
-// Load prompt to output
 function loadPrompt(index) {
     let prompts = JSON.parse(localStorage.getItem("prompts")) || [];
     output.value = prompts[index];
 }
 
-// Delete saved prompt
 function deletePrompt(index) {
     let prompts = JSON.parse(localStorage.getItem("prompts")) || [];
     prompts.splice(index, 1);
@@ -121,7 +111,6 @@ function deletePrompt(index) {
     loadSaved();
 }
 
-// Download Prompt
 function downloadPrompt() {
     if (!output.value) { alert("No prompt to download"); return; }
     const blob = new Blob([output.value], { type: "text/plain;charset=utf-8" });
@@ -135,7 +124,6 @@ function downloadPrompt() {
     URL.revokeObjectURL(url);
 }
 
-// Loader removal
 window.addEventListener("load", () => {
     setTimeout(() => {
         const loader = document.getElementById("loader");
