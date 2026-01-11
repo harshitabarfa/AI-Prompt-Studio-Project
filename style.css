@@ -1,0 +1,70 @@
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #f5f7fb;
+    color: #1f2937;
+}
+
+.dark {
+    background-color: #0f172a !important;
+    color: #f8fafc !important;
+}
+
+.bg-gradient {
+    background: linear-gradient(90deg, #6366f1, #06b6d4) !important;
+}
+
+#loader {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    background: linear-gradient(135deg, #6366f1, #06b6d4);
+}
+
+#robot {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    font-size: 42px;
+    animation: floatBot 3s ease-in-out infinite;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+    z-index: 1000;
+}
+
+.robot.active {
+    transform: scale(1.2) rotate(-5deg);
+}
+
+@keyframes floatBot {
+    0% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-8px);
+    }
+
+    100% {
+        transform: translateY(0);
+    }
+}
+
+@media(max-width:768px) {
+
+    #input,
+    #output {
+        height: 150px;
+    }
+}
+
+@media(max-width:480px) {
+
+    #input,
+    #output {
+        height: 120px;
+    }
+}
