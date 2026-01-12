@@ -48,16 +48,22 @@ function generatePrompt() {
     }
 
     let prompt = "";
+
     if (type === "explain") {
-        prompt = `Act as a ${role}.\nExplain "${input}" in a ${tone} tone.\nUse examples and give a short summary.`;
+        prompt = `Act as a ${role}.\nExplain "${input}" in a ${tone} tone.
+        \nUse examples and give a short summary.`;
     } else if (type === "debug") {
-        prompt = `Act as a senior ${role}.\nDebug the following code.\nExplain errors and provide corrected code.\n\n${input}`;
+        prompt = `Act as a senior ${role}.\nDebug the following code.
+        \nExplain errors and provide corrected code.\n\n${input}`;
     } else if (type === "write") {
-        prompt = `Act as a ${role}.\nWrite structured and engaging content on "${input}" in a ${tone} tone.`;
+        prompt = `Act as a ${role}.
+        \nWrite structured and engaging content on "${input}" in a ${tone} tone.`;
     } else if (type === "interview") {
-        prompt = `Generate interview questions and answers for "${input}".\nCover beginner to advanced level.`;
+        prompt = `Generate interview questions and answers for "${input}".
+        \nCover beginner to advanced level.`;
     } else if (type === "idea") {
-        prompt = `Suggest innovative project ideas related to "${input}".\nInclude features and tech stack.`;
+        prompt = `Suggest innovative project ideas related to "${input}".
+        \nInclude features and tech stack.`;
     }
 
     output.value = prompt;
@@ -67,14 +73,18 @@ function generatePrompt() {
 }
 
 function copyPrompt() {
-    if (!output.value) { alert("No prompt to copy"); return; }
+    if (!output.value) {
+        alert("No prompt to copy"); 
+        return;
+    }
     output.select();
     document.execCommand("copy");
     alert("Prompt copied!");
 }
 
 function savePrompt() {
-    if (!output.value) return;
+    if (!output.value) 
+        return;
     let prompts = JSON.parse(localStorage.getItem("prompts")) || [];
     prompts.push(output.value);
     localStorage.setItem("prompts", JSON.stringify(prompts));
@@ -84,17 +94,17 @@ function savePrompt() {
 function loadSaved() {
     savedList.innerHTML = "";
     let prompts = JSON.parse(localStorage.getItem("prompts")) || [];
+
     prompts.forEach((p, index) => {
         const li = document.createElement("li");
         li.className = "list-group-item d-flex justify-content-between align-items-center";
         li.innerHTML = `
-      <span onclick="loadPrompt(${index})" style="cursor:pointer;">
+        <span onclick="loadPrompt(${index})" style="cursor:pointer;">
         <i class="fa-solid fa-file-lines"></i> Prompt ${index + 1}
-      </span>
-      <button class="btn btn-sm btn-danger" onclick="deletePrompt(${index})">
+        </span>
+        <button class="btn btn-sm btn-danger" onclick="deletePrompt(${index})">
         <i class="fa-solid fa-trash"></i>
-      </button>
-    `;
+        </button>`;
         savedList.appendChild(li);
     });
 }
@@ -112,7 +122,10 @@ function deletePrompt(index) {
 }
 
 function downloadPrompt() {
-    if (!output.value) { alert("No prompt to download"); return; }
+    if (!output.value) { 
+        alert("No prompt to download"); 
+        return; }
+
     const blob = new Blob([output.value], { type: "text/plain;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
