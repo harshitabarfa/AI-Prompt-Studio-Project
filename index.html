@@ -1,102 +1,715 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
-    <title>AI Prompt Studio</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="AI Prompt Studio – Craft, manage, test, and share powerful AI prompts with advanced customization, analytics, and export tools.">
+    <meta name="keywords" content="AI prompt, prompt generator, ChatGPT prompts, Gemini prompts, AI tools">
+    <title>AI Prompt Studio – Craft Powerful AI Prompts</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#FFBF00" id="themeColorMeta">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Prompt Studio">
+    <meta name="application-name" content="AI Prompt Studio">
+    <meta name="msapplication-TileColor" content="#FFBF00">
 
+    <!-- PWA Icons -->
+    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+    <link rel="apple-touch-icon" sizes="192x192" href="icon-192.png">
+    <link rel="apple-touch-icon" sizes="512x512" href="icon-512.png">
+
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-
     <link rel="stylesheet" href="style.css">
 </head>
+<body>
 
-<body class="bg-light">
-
-    <div id="loader" class="position-fixed w-100 h-100 d-flex justify-content-center align-items-center bg-gradient">
-        <div class="text-center text-white">
-            <span style="font-size:50px;">🤖</span>
-            <p>AI Prompt Studio is starting...</p>
+<!-- ═══════════════════════════════════════════
+     LOADER
+═══════════════════════════════════════════ -->
+<div id="loader" class="loader-overlay">
+    <div class="loader-inner">
+        <div class="loader-orbit">
+            <div class="orbit-ring ring-1"></div>
+            <div class="orbit-ring ring-2"></div>
+            <div class="orbit-ring ring-3"></div>
+            <div class="orbit-core">🤖</div>
         </div>
+        <p class="loader-text">Initializing AI Prompt Studio...</p>
+        <div class="loader-bar"><div class="loader-bar-fill"></div></div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     TOAST CONTAINER
+═══════════════════════════════════════════ -->
+<div id="toastContainer" class="toast-container"></div>
+
+<!-- ═══════════════════════════════════════════
+     BACKGROUND BLOBS
+═══════════════════════════════════════════ -->
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+<div class="blob blob-3"></div>
+
+<!-- ═══════════════════════════════════════════
+     SIDEBAR
+═══════════════════════════════════════════ -->
+<aside id="sidebar" class="sidebar">
+    <div class="sidebar-header">
+        <div class="brand">
+            <div class="brand-icon"><i class="fas fa-wand-magic-sparkles"></i></div>
+            <div class="brand-text">
+                <span class="brand-name">AI Prompt</span>
+                <span class="brand-sub">Studio</span>
+            </div>
+        </div>
+        <button id="sidebarToggle" class="sidebar-toggle" title="Collapse sidebar">
+            <i class="fas fa-chevron-left"></i>
+        </button>
     </div>
 
-    <nav class="navbar navbar-expand-lg navbar-dark bg-gradient px-3">
-        <a class="navbar-brand" href="#"><i class="fa-solid fa-wand-magic-sparkles"></i> AI Prompt Studio</a>
-        <button id="themeBtn" class="btn btn-outline-light btn-sm ms-auto"><i class="fa-solid fa-moon"></i></button>
+    <nav class="sidebar-nav">
+        <button class="nav-item active" data-tab="studio" id="nav-studio">
+            <i class="fas fa-sparkles"></i>
+            <span class="nav-label">Studio</span>
+        </button>
+        <button class="nav-item" data-tab="library" id="nav-library">
+            <i class="fas fa-book-bookmark"></i>
+            <span class="nav-label">Library</span>
+            <span class="nav-badge" id="libraryBadge">0</span>
+        </button>
+        <button class="nav-item" data-tab="templates" id="nav-templates">
+            <i class="fas fa-layer-group"></i>
+            <span class="nav-label">Templates</span>
+        </button>
+        <button class="nav-item" data-tab="analytics" id="nav-analytics">
+            <i class="fas fa-chart-line"></i>
+            <span class="nav-label">Analytics</span>
+        </button>
+        <button class="nav-item" data-tab="settings" id="nav-settings">
+            <i class="fas fa-gear"></i>
+            <span class="nav-label">Settings</span>
+        </button>
     </nav>
 
-    <div class="container my-4">
+    <div class="sidebar-footer">
+        <button id="themeToggle" class="theme-btn" title="Toggle dark/light mode">
+            <i class="fas fa-moon" id="themeIcon"></i>
+            <span class="nav-label" id="themeLabel">Dark Mode</span>
+        </button>
+        <button id="installPwaBtn" class="theme-btn hidden" onclick="installPWA()" title="Install as mobile app">
+            <i class="fas fa-mobile-screen"></i>
+            <span class="nav-label">Install App</span>
+        </button>
+    </div>
+</aside>
 
-        <div class="card mb-4 p-3">
-            <label class="form-label"><i class="fa-solid fa-layer-group"></i> Prompt Type</label>
-            <select id="type" class="form-select mb-3">
-                <option value="explain">Explain Topic</option>
-                <option value="debug">Debug Code</option>
-                <option value="write">Write Content</option>
-                <option value="interview">Interview Q&A</option>
-                <option value="idea">Project Ideas</option>
-            </select>
+<!-- Sidebar Overlay for mobile -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-            <div class="row g-2 mb-3">
-                <div class="col-sm">
-                    <label class="form-label"><i class="fa-solid fa-user"></i> Role</label>
-                    <select id="role" class="form-select">
-                        <option>Student</option>
-                        <option>Java Developer</option>
-                        <option>Frontend Developer</option>
-                        <option>Content Writer</option>
-                    </select>
-                </div>
-                <div class="col-sm">
-                    <label class="form-label"><i class="fa-solid fa-palette"></i> Tone</label>
-                    <select id="tone" class="form-select">
-                        <option>Simple</option>
-                        <option>Professional</option>
-                        <option>Friendly</option>
-                    </select>
-                </div>
+<!-- ═══════════════════════════════════════════
+     MAIN WRAPPER
+═══════════════════════════════════════════ -->
+<div class="main-wrapper" id="mainWrapper">
+
+    <!-- TOP BAR -->
+    <header class="topbar">
+        <button class="topbar-menu-btn" id="mobileMenuBtn">
+            <i class="fas fa-bars"></i>
+        </button>
+        <div class="topbar-title" id="topbarTitle">✨ Studio</div>
+        <div class="topbar-actions">
+            <div class="stat-pill" title="Total prompts generated">
+                <i class="fas fa-bolt"></i>
+                <span id="topbarTotal">0</span>
             </div>
-
-            <label class="form-label"><i class="fa-solid fa-keyboard"></i> Topic / Code</label>
-            <textarea id="input" class="form-control mb-3" rows="5"
-                placeholder="Enter topic or code here..."></textarea>
-
-            <button class="btn btn-primary w-100" onclick="generatePrompt()">
-                <i class="fa-solid fa-bolt"></i> Generate Prompt
+            <button id="langToggle" class="lang-btn" title="Switch language">
+                <span id="langLabel">EN</span>
+            </button>
+            <button id="themeToggleMobile" class="icon-btn" title="Toggle theme">
+                <i class="fas fa-moon" id="themeIconMobile"></i>
             </button>
         </div>
+    </header>
 
-        <div class="card mb-4 p-3">
-            <h5><i class="fa-solid fa-robot"></i> Generated Prompt</h5>
-            <textarea id="output" class="form-control mb-3" rows="8" readonly></textarea>
-            <div class="d-flex gap-2 flex-wrap">
-                <button class="btn btn-secondary flex-fill" onclick="copyPrompt()">
-                    <i class="fa-solid fa-copy"></i>
-                </button>
-                <button class="btn btn-secondary flex-fill" onclick="savePrompt()">
-                    <i class="fa-solid fa-bookmark"></i>
-                </button>
-                <button class="btn btn-secondary flex-fill" onclick="downloadPrompt()">
-                    <i class="fa-solid fa-download"></i>
-                </button>
+    <!-- ─────────────────────────────────────────
+         TAB: STUDIO
+    ───────────────────────────────────────── -->
+    <section class="tab-panel active" id="tab-studio">
+        <div class="panel-grid">
+
+            <!-- LEFT: Prompt Builder -->
+            <div class="panel-left">
+                <div class="glass-card">
+                    <div class="card-header">
+                        <h2 class="card-title">
+                            <i class="fas fa-layer-group card-title-icon icon-gold"></i>
+                            <span data-i18n="promptConfig">Prompt Configuration</span>
+                        </h2>
+                        <div class="card-actions">
+                            <button class="icon-btn" id="voiceInputBtn" title="Voice input">
+                                <i class="fas fa-microphone"></i>
+                            </button>
+                            <button class="icon-btn" id="clearBtn" title="Clear all fields">
+                                <i class="fas fa-rotate-left"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Prompt Type -->
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-tag"></i>
+                            <span data-i18n="promptType">Prompt Type</span>
+                        </label>
+                        <div class="type-chips" id="typeChips">
+                            <button class="type-chip active" data-type="explain">💡 Explain</button>
+                            <button class="type-chip" data-type="debug">🐛 Debug</button>
+                            <button class="type-chip" data-type="write">✍️ Write</button>
+                            <button class="type-chip" data-type="interview">🎯 Interview</button>
+                            <button class="type-chip" data-type="idea">🚀 Ideas</button>
+                            <button class="type-chip" data-type="career">💼 Career</button>
+                            <button class="type-chip" data-type="seo">📈 SEO</button>
+                            <button class="type-chip" data-type="email">📧 Email</button>
+                        </div>
+                    </div>
+
+                    <!-- Role + Tone -->
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-user"></i>
+                                <span data-i18n="role">Role</span>
+                            </label>
+                            <select id="role" class="glass-select">
+                                <option>Student</option>
+                                <option>Java Developer</option>
+                                <option>Frontend Developer</option>
+                                <option>Full Stack Developer</option>
+                                <option>Data Scientist</option>
+                                <option>Content Writer</option>
+                                <option>Business Analyst</option>
+                                <option>Marketing Expert</option>
+                                <option>Career Coach</option>
+                                <option>SEO Specialist</option>
+                                <option>Teacher</option>
+                                <option>Entrepreneur</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-palette"></i>
+                                <span data-i18n="tone">Tone</span>
+                            </label>
+                            <select id="tone" class="glass-select">
+                                <option>Simple</option>
+                                <option>Professional</option>
+                                <option>Friendly</option>
+                                <option>Formal</option>
+                                <option>Creative</option>
+                                <option>Concise</option>
+                                <option>Detailed</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Length + Format (Custom Builder) -->
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-ruler-horizontal"></i>
+                                <span data-i18n="length">Length</span>
+                            </label>
+                            <select id="length" class="glass-select">
+                                <option>Short</option>
+                                <option>Medium</option>
+                                <option>Long</option>
+                                <option>Comprehensive</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-list-check"></i>
+                                <span data-i18n="format">Format</span>
+                            </label>
+                            <select id="format" class="glass-select">
+                                <option>Plain text</option>
+                                <option>Bullet points</option>
+                                <option>Numbered list</option>
+                                <option>Table</option>
+                                <option>Code blocks</option>
+                                <option>Q&A format</option>
+                                <option>Step-by-step</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Topic Input -->
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-keyboard"></i>
+                            <span data-i18n="topicLabel">Topic / Code</span>
+                        </label>
+                        <div class="input-wrapper">
+                            <textarea id="topicInput" class="glass-input" rows="4"
+                                placeholder="Enter your topic, question, or code snippet..." data-i18n-placeholder="topicPlaceholder"></textarea>
+                            <div class="input-char-count"><span id="charCount">0</span> chars</div>
+                        </div>
+                        <!-- Auto-suggestions -->
+                        <div id="suggestionsBox" class="suggestions-box hidden"></div>
+                    </div>
+
+                    <!-- Tags for saving -->
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-hashtag"></i>
+                            <span data-i18n="tags">Tags</span>
+                            <span class="form-hint">(optional, comma-separated)</span>
+                        </label>
+                        <input type="text" id="tagsInput" class="glass-input" placeholder="#frontend, #AI, #SEO">
+                    </div>
+
+                    <!-- Category -->
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-folder"></i>
+                            <span data-i18n="category">Category</span>
+                        </label>
+                        <select id="categoryInput" class="glass-select">
+                            <option value="Coding">💻 Coding</option>
+                            <option value="Writing">✍️ Writing</option>
+                            <option value="Business">💼 Business</option>
+                            <option value="Study">📚 Study</option>
+                            <option value="Career">🎯 Career</option>
+                            <option value="General">🌐 General</option>
+                        </select>
+                    </div>
+
+                    <!-- Generate Button -->
+                    <button class="btn-primary w-full" id="generateBtn" onclick="generatePrompt()">
+                        <i class="fas fa-bolt"></i>
+                        <span data-i18n="generatePrompt">Generate Prompt</span>
+                    </button>
+
+                    <!-- Keyboard shortcuts hint -->
+                    <div class="shortcuts-hint">
+                        <kbd>Ctrl</kbd>+<kbd>Enter</kbd> Generate &nbsp;|&nbsp;
+                        <kbd>Ctrl</kbd>+<kbd>S</kbd> Save &nbsp;|&nbsp;
+                        <kbd>Ctrl</kbd>+<kbd>C</kbd> Copy
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT: Output + AI Response -->
+            <div class="panel-right">
+
+                <!-- Generated Prompt -->
+                <div class="glass-card" id="outputCard">
+                    <div class="card-header">
+                        <h2 class="card-title">
+                            <i class="fas fa-robot card-title-icon icon-blue"></i>
+                            <span data-i18n="generatedPrompt">Generated Prompt</span>
+                        </h2>
+                        <div class="card-actions">
+                            <div class="score-badge hidden" id="scoreBadge" title="Prompt Quality Score">
+                                <i class="fas fa-star"></i>
+                                <span id="scoreVal">0</span>/10
+                            </div>
+                            <button class="icon-btn" id="ttsBtn" title="Read prompt aloud">
+                                <i class="fas fa-volume-high"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <textarea id="outputPrompt" class="glass-input output-area" readonly
+                        placeholder="Your generated prompt will appear here..."></textarea>
+
+                    <!-- Action row -->
+                    <div class="action-grid">
+                        <button class="btn-secondary" id="copyBtn" onclick="copyPrompt()">
+                            <i class="fas fa-copy" id="copyIcon"></i>
+                            <span data-i18n="copy">Copy</span>
+                        </button>
+                        <button class="btn-secondary" id="saveBtn" onclick="savePrompt()">
+                            <i class="fas fa-bookmark"></i>
+                            <span data-i18n="save">Save</span>
+                        </button>
+                        <button class="btn-secondary" id="improveBtn" onclick="improvePrompt()">
+                            <i class="fas fa-wand-sparkles"></i>
+                            <span data-i18n="improve">Improve</span>
+                        </button>
+                        <button class="btn-secondary" id="shareBtn" onclick="sharePrompt()">
+                            <i class="fas fa-share-nodes"></i>
+                            <span data-i18n="share">Share</span>
+                        </button>
+                    </div>
+
+                    <!-- Export row -->
+                    <div class="export-row">
+                        <span class="export-label">Export:</span>
+                        <button class="export-btn" onclick="downloadTXT()"><i class="fas fa-file-lines"></i> TXT</button>
+                        <button class="export-btn" onclick="downloadPDF()"><i class="fas fa-file-pdf"></i> PDF</button>
+                        <button class="export-btn" onclick="downloadJSON()"><i class="fas fa-code"></i> JSON</button>
+                        <button class="export-btn" onclick="copyMarkdown()"><i class="fab fa-markdown"></i> MD</button>
+                    </div>
+                </div>
+
+                <!-- AI Response Panel -->
+                <div class="glass-card" id="aiResponseCard">
+                    <div class="card-header">
+                        <h2 class="card-title">
+                            <i class="fas fa-brain card-title-icon icon-purple"></i>
+                            <span data-i18n="aiResponse">AI Response</span>
+                            <span class="api-mode-badge" id="apiModeBadge">Demo Mode</span>
+                        </h2>
+                        <div class="card-actions">
+                            <button class="icon-btn" id="aiTtsBtn" title="Read AI response aloud">
+                                <i class="fas fa-volume-high"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="aiResponseArea" class="ai-response-area">
+                        <div class="ai-empty-state">
+                            <div class="ai-empty-icon">🤖</div>
+                            <p data-i18n="aiEmptyState">Generate a prompt first, then click <strong>Run AI</strong> to see the response.</p>
+                        </div>
+                    </div>
+
+                    <div class="ai-actions">
+                        <button class="btn-primary" id="runAiBtn" onclick="runAI()">
+                            <i class="fas fa-play"></i>
+                            <span data-i18n="runAI">Run AI</span>
+                        </button>
+                        <button class="btn-secondary" id="copyAiBtn" onclick="copyAIResponse()">
+                            <i class="fas fa-copy"></i>
+                            <span data-i18n="copyResponse">Copy Response</span>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ─────────────────────────────────────────
+         TAB: LIBRARY
+    ───────────────────────────────────────── -->
+    <section class="tab-panel" id="tab-library">
+        <div class="library-header">
+            <h2 class="page-title" data-i18n="savedPrompts">Saved Prompts</h2>
+            <div class="library-controls">
+                <!-- Search -->
+                <div class="search-box">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="searchInput" class="search-input" placeholder="Search prompts..." oninput="filterLibrary()">
+                    <button class="search-clear hidden" id="searchClear" onclick="clearSearch()">
+                        <i class="fas fa-xmark"></i>
+                    </button>
+                </div>
+                <!-- Category filter -->
+                <div class="filter-tabs" id="categoryFilter">
+                    <button class="filter-tab active" data-cat="all">All</button>
+                    <button class="filter-tab" data-cat="Coding">💻 Coding</button>
+                    <button class="filter-tab" data-cat="Writing">✍️ Writing</button>
+                    <button class="filter-tab" data-cat="Business">💼 Business</button>
+                    <button class="filter-tab" data-cat="Study">📚 Study</button>
+                    <button class="filter-tab" data-cat="Career">🎯 Career</button>
+                    <button class="filter-tab" data-cat="General">🌐 General</button>
+                    <button class="filter-tab" data-cat="favorites"><i class="fas fa-star"></i> Favorites</button>
+                </div>
             </div>
         </div>
 
-        <div class="card p-3">
-            <h5><i class="fa-solid fa-bookmark"></i> Saved Prompts</h5>
-            <ul id="savedList" class="list-group mt-2"></ul>
+        <div id="libraryGrid" class="library-grid">
+            <div class="empty-state" id="libraryEmpty">
+                <div class="empty-icon">📭</div>
+                <h3 data-i18n="noSaved">No saved prompts yet</h3>
+                <p data-i18n="noSavedSub">Generate a prompt in Studio and save it here.</p>
+                <button class="btn-primary" onclick="switchTab('studio')">
+                    <i class="fas fa-sparkles"></i> Open Studio
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ─────────────────────────────────────────
+         TAB: TEMPLATES
+    ───────────────────────────────────────── -->
+    <section class="tab-panel" id="tab-templates">
+        <div class="library-header">
+            <h2 class="page-title" data-i18n="templates">Prompt Templates</h2>
+            <div class="filter-tabs" id="templateFilter">
+                <button class="filter-tab active" data-tcat="all">All</button>
+                <button class="filter-tab" data-tcat="Coding">💻 Coding</button>
+                <button class="filter-tab" data-tcat="Writing">✍️ Writing</button>
+                <button class="filter-tab" data-tcat="Business">💼 Business</button>
+                <button class="filter-tab" data-tcat="Study">📚 Study</button>
+                <button class="filter-tab" data-tcat="Career">🎯 Career</button>
+            </div>
+        </div>
+        <div id="templatesGrid" class="library-grid"></div>
+    </section>
+
+    <!-- ─────────────────────────────────────────
+         TAB: ANALYTICS
+    ───────────────────────────────────────── -->
+    <section class="tab-panel" id="tab-analytics">
+        <h2 class="page-title" data-i18n="analytics">Analytics & Insights</h2>
+
+        <div class="analytics-grid">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg,#FFBF00,#FF8C00);">
+                    <i class="fas fa-bolt"></i>
+                </div>
+                <div class="stat-info">
+                    <div class="stat-num" id="statTotal">0</div>
+                    <div class="stat-label" data-i18n="totalGenerated">Total Generated</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg,#007EFF,#2400FF);">
+                    <i class="fas fa-bookmark"></i>
+                </div>
+                <div class="stat-info">
+                    <div class="stat-num" id="statSaved">0</div>
+                    <div class="stat-label" data-i18n="totalSaved">Total Saved</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg,#9B59B6,#8E44AD);">
+                    <i class="fas fa-star"></i>
+                </div>
+                <div class="stat-info">
+                    <div class="stat-num" id="statFav">0</div>
+                    <div class="stat-label" data-i18n="favorites">Favorites</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg,#27AE60,#1E8449);">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="stat-info">
+                    <div class="stat-num" id="statAI">0</div>
+                    <div class="stat-label" data-i18n="aiRuns">AI Runs</div>
+                </div>
+            </div>
         </div>
 
+        <!-- Most used type -->
+        <div class="glass-card mt-6">
+            <h3 class="section-heading" data-i18n="mostUsedTypes">Most Used Prompt Types</h3>
+            <div id="typeChart" class="type-chart"></div>
+        </div>
+
+        <!-- Recent History -->
+        <div class="glass-card mt-6">
+            <div class="card-header">
+                <h3 class="section-heading" data-i18n="recentHistory">Recent History</h3>
+                <button class="btn-danger-sm" onclick="clearHistory()">
+                    <i class="fas fa-trash"></i> Clear
+                </button>
+            </div>
+            <div id="historyList" class="history-list">
+                <div class="empty-state-sm" data-i18n="noHistory">No history yet.</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ─────────────────────────────────────────
+         TAB: SETTINGS
+    ───────────────────────────────────────── -->
+    <section class="tab-panel" id="tab-settings">
+        <h2 class="page-title" data-i18n="settings">Settings</h2>
+
+        <div class="settings-grid">
+            <!-- API Config -->
+            <div class="glass-card">
+                <h3 class="section-heading">
+                    <i class="fas fa-key icon-gold"></i>
+                    <span data-i18n="apiConfig">AI API Configuration</span>
+                </h3>
+                <div class="form-group">
+                    <label class="form-label" data-i18n="apiMode">API Mode</label>
+                    <div class="toggle-group">
+                        <button class="toggle-btn active" id="modeDemo" onclick="setApiMode('demo')">
+                            <i class="fas fa-flask"></i> Demo (JSONPlaceholder)
+                        </button>
+                        <button class="toggle-btn" id="modeGemini" onclick="setApiMode('gemini')">
+                            <i class="fas fa-robot"></i> Gemini AI
+                        </button>
+                    </div>
+                </div>
+                <div class="form-group" id="geminiKeyGroup" style="display:none;">
+                    <label class="form-label" data-i18n="geminiKey">Gemini API Key</label>
+                    <div class="input-wrapper">
+                        <input type="password" id="geminiApiKey" class="glass-input" placeholder="AIza...">
+                        <button class="input-eye-btn" onclick="toggleKeyVisibility()">
+                            <i class="fas fa-eye" id="eyeIcon"></i>
+                        </button>
+                    </div>
+                    <button class="btn-primary mt-3" onclick="saveApiKey()">
+                        <i class="fas fa-save"></i> Save Key
+                    </button>
+                </div>
+                <div class="api-info-box" id="apiInfoBox">
+                    <i class="fas fa-info-circle"></i>
+                    <span data-i18n="demoModeInfo">Demo mode uses JSONPlaceholder API — no key needed. Switch to Gemini for real AI responses.</span>
+                </div>
+            </div>
+
+            <!-- Language -->
+            <div class="glass-card">
+                <h3 class="section-heading">
+                    <i class="fas fa-language icon-blue"></i>
+                    <span data-i18n="language">Language</span>
+                </h3>
+                <div class="toggle-group">
+                    <button class="toggle-btn active" id="langEN" onclick="setLanguage('en')">🇺🇸 English</button>
+                    <button class="toggle-btn" id="langMR" onclick="setLanguage('mr')">🇮🇳 Marathi</button>
+                </div>
+            </div>
+
+            <!-- Theme -->
+            <div class="glass-card">
+                <h3 class="section-heading">
+                    <i class="fas fa-circle-half-stroke icon-purple"></i>
+                    <span data-i18n="appearance">Appearance</span>
+                </h3>
+                <div class="toggle-group">
+                    <button class="toggle-btn" id="themeLight" onclick="setTheme('light')">
+                        <i class="fas fa-sun"></i> Light
+                    </button>
+                    <button class="toggle-btn" id="themeDark" onclick="setTheme('dark')">
+                        <i class="fas fa-moon"></i> Dark
+                    </button>
+                </div>
+            </div>
+
+            <!-- Keyboard Shortcuts -->
+            <div class="glass-card">
+                <h3 class="section-heading">
+                    <i class="fas fa-keyboard icon-gold"></i>
+                    <span data-i18n="shortcuts">Keyboard Shortcuts</span>
+                </h3>
+                <div class="shortcuts-table">
+                    <div class="shortcut-row">
+                        <span>Generate Prompt</span>
+                        <div><kbd>Ctrl</kbd>+<kbd>Enter</kbd></div>
+                    </div>
+                    <div class="shortcut-row">
+                        <span>Save Prompt</span>
+                        <div><kbd>Ctrl</kbd>+<kbd>S</kbd></div>
+                    </div>
+                    <div class="shortcut-row">
+                        <span>Copy Prompt</span>
+                        <div><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>C</kbd></div>
+                    </div>
+                    <div class="shortcut-row">
+                        <span>Run AI</span>
+                        <div><kbd>Ctrl</kbd>+<kbd>R</kbd></div>
+                    </div>
+                    <div class="shortcut-row">
+                        <span>Toggle Theme</span>
+                        <div><kbd>Ctrl</kbd>+<kbd>D</kbd></div>
+                    </div>
+                    <div class="shortcut-row">
+                        <span>Open Library</span>
+                        <div><kbd>Ctrl</kbd>+<kbd>L</kbd></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Danger Zone -->
+            <div class="glass-card danger-card">
+                <h3 class="section-heading">
+                    <i class="fas fa-triangle-exclamation" style="color:#ef4444;"></i>
+                    <span>Danger Zone</span>
+                </h3>
+                <button class="btn-danger" onclick="clearAllData()">
+                    <i class="fas fa-trash-can"></i> Clear All Data (Prompts + History)
+                </button>
+            </div>
+        </div>
+    </section>
+
+</div><!-- end main-wrapper -->
+
+<!-- ═══════════════════════════════════════════
+     MOBILE BOTTOM TAB BAR
+═══════════════════════════════════════════ -->
+<nav class="bottom-tabs" id="bottomTabs">
+    <button class="bottom-tab active" data-tab="studio"><i class="fas fa-sparkles"></i><span>Studio</span></button>
+    <button class="bottom-tab" data-tab="library"><i class="fas fa-book-bookmark"></i><span>Library</span></button>
+    <button class="bottom-tab" data-tab="templates"><i class="fas fa-layer-group"></i><span>Templates</span></button>
+    <button class="bottom-tab" data-tab="analytics"><i class="fas fa-chart-line"></i><span>Analytics</span></button>
+    <button class="bottom-tab" data-tab="settings"><i class="fas fa-gear"></i><span>Settings</span></button>
+</nav>
+
+<!-- ═══════════════════════════════════════════
+     PROMPT EDIT MODAL
+═══════════════════════════════════════════ -->
+<div id="editModal" class="modal-overlay hidden">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3 class="modal-title"><i class="fas fa-pencil"></i> Edit Prompt</h3>
+            <button class="modal-close" onclick="closeEditModal()"><i class="fas fa-xmark"></i></button>
+        </div>
+        <textarea id="editTextarea" class="glass-input modal-textarea" rows="8"></textarea>
+        <div class="modal-footer">
+            <button class="btn-secondary" onclick="closeEditModal()">Cancel</button>
+            <button class="btn-primary" onclick="saveEditedPrompt()"><i class="fas fa-save"></i> Save Changes</button>
+        </div>
     </div>
+</div>
 
-    <div class="robot" id="robot">🤖</div>
+<!-- Robot mascot -->
+<div id="robot" title="AI Prompt Studio">🤖</div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="script.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="script.js"></script>
+
+<!-- PWA Service Worker Registration -->
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js')
+        .then(reg => console.log('✅ SW registered:', reg.scope))
+        .catch(err => console.warn('SW registration failed:', err));
+    });
+  }
+
+  // PWA Install Prompt
+  let deferredPrompt;
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    // Show install button in UI
+    const installBtn = document.getElementById('installPwaBtn');
+    if (installBtn) installBtn.classList.remove('hidden');
+  });
+
+  window.addEventListener('appinstalled', () => {
+    deferredPrompt = null;
+    const installBtn = document.getElementById('installPwaBtn');
+    if (installBtn) installBtn.classList.add('hidden');
+    if (typeof showToast === 'function') showToast('📱 App installed successfully!', 'success');
+  });
+
+  function installPWA() {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(choice => {
+      deferredPrompt = null;
+    });
+  }
+</script>
 </body>
-
 </html>
